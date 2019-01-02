@@ -1,0 +1,35 @@
+<?xml version='1.0' standalone='yes'?>
+<fileset>
+  <file>
+    <path>BugzillaCfg.pm</path>
+    <xpath>//property[propertyName=&quot;ECDefectTracking::Bugzilla::Cfg&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>BugzillaDriver.pm</path>
+    <xpath>//property[propertyName=&quot;ECDefectTracking::Bugzilla::Driver&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>bugzillaCreateConfigForm.xml</path>
+    <xpath>//property[propertyName=&quot;createConfig&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>bugzillaEditConfigForm.xml</path>
+    <xpath>//property[propertyName=&quot;editConfig&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>ec_setup.pl</path>
+    <xpath>//property[propertyName=&quot;ec_setup&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>ec_parameterForm-LinkDefects.xml</path>
+    <xpath>//procedure[procedureName=&quot;LinkDefects&quot;]/propertySheet/property[propertyName=&quot;ec_parameterForm&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>ec_parameterForm-UpdateDefects.xml</path>
+    <xpath>//procedure[procedureName=&quot;UpdateDefects&quot;]/propertySheet/property[propertyName=&quot;ec_parameterForm&quot;]/value</xpath>
+  </file>
+  <file>
+    <path>ec_parameterForm-CreateDefects.xml</path>
+    <xpath>//procedure[procedureName=&quot;CreateDefects&quot;]/propertySheet/property[propertyName=&quot;ec_parameterForm&quot;]/value</xpath>
+  </file>
+</fileset>
