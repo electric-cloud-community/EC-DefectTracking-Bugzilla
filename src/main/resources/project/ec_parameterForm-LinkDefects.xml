@@ -1,0 +1,18 @@
+    <editor>
+	<help>/commander/pages/@PLUGIN_KEY@-@PLUGIN_VERSION@/EC-DefectTracking-Bugzilla_help?s=Administration&amp;ss=Plugins#LinkDefects</help>
+        <formElement>
+            <type>entry</type>
+            <label>Configuration Name:</label>
+            <property>config</property>
+			<required>1</required>
+            <documentation>Provide the name of your Bugzilla Defect Tracking configuration, or leave it blank to use the "default" configuration.</documentation>
+        </formElement>        
+
+        <formElement>
+            <type>entry</type>
+            <label>Property To Parse :</label>
+            <property>propertyToParse</property>
+            <documentation>Provide the property or propertysheet to search for defect IDs. If this field is blank, the default property /myJob/ecscm_changeLogs is used.</documentation>
+        </formElement>
+		
+    </editor>

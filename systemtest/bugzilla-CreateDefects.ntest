@@ -1,0 +1,241 @@
+# -*-Perl-*-
+# bugzilla.ntest -
+# Exercise procedure CrateDefects in EC-DefectTracking-Bugzilla
+#
+# Copyright (c) 2005-2010 Electric Cloud, Inc.
+# All rights reserved
+
+use strict;
+use ECTest;
+use ECSelenium;
+require "$::gTestFileDir/../../EC-DefectTracking/systemtest/ntest.common";
+$::gProjectImported = 0;
+$::gConfigCreated = 0;
+
+sub importProject() {
+    assertOK($::N->import({ file =>"$::gTestFileDir/bugzilla-CreateDefects.xml", path  => '/projects/bugzilla-CreateDefects', force => 1} ), 'import bugzilla-CreateDefects project');
+    assertOK($::N->getProcedure('bugzilla-CreateDefects', 'cfgDoesNotExist'),'cfgDoesNotExist procedure exists');
+    $::gProjectImported = 1;
+} 
+
+sub createConfig() {
+    my $xpath = $::N->runProcedure("$::gPlugin_name", { procedureName => 'CreateConfiguration', pollInterval  => '0.2', timeout => 600, actualParameter => [  { actualParameterName => 'config', value => 'bugzillaCfgTestServer' }, 
+            { actualParameterName => 'desc', value => 'Bugzilla configuration' }, 
+            { actualParameterName => 'url', value => 'http://bugzilla/' }, 
+            { actualParameterName => 'credential', value => 'test' }, 
+            { actualParameterName => 'product', value => 'TestProduct' }, 
+            { actualParameterName => 'version', value => 'unspecified' }, 
+            { actualParameterName => 'component', value => 'TestComponent' },
+            { actualParameterName => 'priority', value => 'P5' },
+            { actualParameterName => 'severity', value => 'normal' },
+        ],
+        credential => [
+            { credentialName => 'test', userName => 'testuser@electric-cloud.com', password => 'testuser', },
+        ],
+        });
+    assertOK($xpath, 'run create configuration procedure');
+    my $jobId = 0;
+    my $status = '';
+    assertDef($xpath, 'runProcedure finished without a timeout');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    writeFile("$::gCurrentTestDir/createConfiguration.log","====Job Details====\n$xpath->{_xml}\n");
+    $xpath = $::N->getProperty("/projects/$::ECdt/defectTracking_cfgs/bugzillaCfgTestServer/defectTrackingPlugin");
+    assertEq('EC-DefectTracking-Bugzilla',$xpath->findvalue('//value')->string_value, 'configuration type');
+    $xpath = $::N->getCredential("$::ECdt",'bugzillaCfgTestServer');
+    assertEq("testuser\@electric-cloud.com",$xpath->findvalue("//userName")->string_value, 'Credential user');
+    $::gConfigCreated = 1;
+}
+
+sub doSetup() {
+    if(! $::gProjectImported) {
+        importProject();
+    }
+    if (! $::gConfigCreated) {
+        createConfig();
+    }
+}
+
+ntest 'cfgDoesNotExist', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects', { procedureName => 'cfgDoesNotExist', pollInterval  => '1', timeout       => 600, actualParameter => [
+                {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/cfgDoesNotExist.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('Could not find configuration cfgDoesNotExist', $data, 'cfgDoesNotExist output');
+};
+
+ntest 'noDefectsToCreate', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects', { procedureName => 'noDefectsToCreate', pollInterval  => '1', timeout       => 600, actualParameter => [
+                {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/noDefectsToCreate.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('No Errors, so no Defects to create', $data, 'noDefectsToCreate output');
+};
+
+ntest 'propertiesContainsOneDefect', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects', { procedureName => 'propertiesContainsOneDefect', pollInterval  => '1', timeout       => 600, actualParameter => [
+                {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/propertiesContainsOneDefect.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('Trying to get Property /myJob/ecTestFailures/Step35469-testBlockUnblock', $data, 'propertiesContainsOneDefect output');
+};
+
+ntest 'propertiesContainsTwoDefects', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects',  { procedureName => 'propertiesContainsTwoDefects', pollInterval  => '1', timeout       => 600,
+            actualParameter => [
+            {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status'); 
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete"); 
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/propertiesContainsTwoDefects.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('Trying to get Property /myJob/ecTestFailures/Step35469-testBlockUnblock', $data, 'propertiesContainsTwoDefects output');
+    assertSubstring('Trying to get Property /myJob/ecTestFailures/Step35469-testBlockUnblock2', $data, 'propertiesContainsTwoDefects output');
+};
+
+ntest 'reportLinkCreated', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects', { procedureName => 'reportLinkCreated',pollInterval  => '1',timeout       => 600,actualParameter => [
+                {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/reportLinkCreated.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('Creating link', $data, 'reportLinkCreated output');
+};
+
+ntest 'reportLinkCreatedManual', {}, sub {
+    doSetup();
+    my $xpath = $::N->runProcedure('bugzilla-CreateDefects', { procedureName => 'reportLinkCreatedManual', pollInterval  => '1', timeout       => 600, actualParameter => [
+                {actualParameterName => 'resource', value => "$::gAgentResource"},
+            ]
+        });
+    my $jobId = 0;
+    my $status = '';
+    assertOK($xpath, 'runProcedure finished');
+    if ($xpath) {
+        $jobId  = $xpath->findvalue('//jobId');
+        $status = $xpath->findvalue('//status');
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed',$status,"job $jobId complete");
+        if ($status ne 'completed') {
+            assertOK($::N->abortJob($jobId, {force => 1}));
+        }
+    }
+    $xpath = $::N->getJobDetails($jobId);
+    my $ws = $xpath->findvalue('//workspace/winUNC');
+    if (!isWindows()) {
+        $ws = $xpath->findvalue('//workspace/unix');
+    }
+    my $logFileName = $ws . '/' . $xpath->findvalue("//jobStep[stepName='bugzilla - Create Defects']/calledProcedure/jobStep[stepName='runMethod']/logFileName");
+    my $data = readFile($logFileName);
+    writeFile("$::gCurrentTestDir/reportLinkCreatedManual.log","====Job Details====\n$xpath->{_xml}\n====LOG====\n$data\n");
+    assertSubstring('Creating link', $data, 'reportLinkCreatedManual output');
+};

@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Windows (vers 25 March 2009), see www.w3.org" />
+  <meta content="text/html; charset=us-ascii" http-equiv=
+  "content-type" />
+
+  <title>ElectricFlow Plugin for @PLUGIN_KEY@</title>
+  <link rel="stylesheet" href=
+  "../../plugins/@PLUGIN_KEY@/pluginhelp.css" type="text/css"
+  media="screen" />
+</head>
+
+<body>
+  <div class="help">
+    <h1>Bugzilla</h1>
+
+    <p>Plugin Version @PLUGIN_VERSION@</p>
+    <hr style=
+    "margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;"
+    noshade="noshade" />		<p>Revised on July 1, 2015</p>	<h1>Contents</h1>	<ul>	<li><p><a href="#overview">Overview</a></p></li>	<li><p><a href="#procedures">Plugin Procedures</a></p></li>	<li><p><a href="#example">Examples and Use Cases</a></p></li>	<li><p><a href="#rns">Release Notes</a></p></li>	</ul>		<h1 id="overview">Overview</h1>
+    <!-- The tool description should answer these kinds of questions:
+    What is the tool itself is used for in the development
+    process? Who would use this tool? What is the general use-case or
+    problem that this tool solves? Look at the tool's documentation or
+    website(s) to get their own descriptions. Look at Wikipedia or other
+    outside websites. If there is a Hudson plugin, read their
+    documentation for ideas, examples, etc. It's OK to copy word-for-word
+    only if appropriate, such as FOSS - but not commercial software.
+    -->
+
+    <p>Bugzilla is a free defect-tracking or bug-tracking system that has many features that commercial counterparts lack. Defect tracking systems allow developers to keep track of outstanding defects in their products effectively.</p>
+
+    <h2>Bugzilla Links</h2>
+
+    <p>More information can be found at <a href=
+    "http://www.bugzilla.org/">this website</a>.</p>
+
+    <h2>ElectricFlow Integration to Bugzilla</h2>
+    <!-- The integration description should answer the questions:
+    How deep does our integration go? Why should I care? What general
+    functionality does the plugin include? What functionality does
+    the plugin omit?
+    -->
+
+    <p>The @PLUGIN_KEY@ plugin enables you to create, update, and
+    link Bugzilla defects to an ElectricFlow job. The plugin also
+    allows you to link to a new report that contains information
+    from the Bugzilla server about what was linked, updated, or
+    created.</p>
+
+    <h2>Integrated Version</h2>
+
+    <p>This plugin was developed and tested against version 4.0.</p>
+
+    <h1 id="procedures">Plugin Procedures</h1>
+    <p>IMPORTANT: For all parameter descriptions below, required
+    parameters are shown in <span class='required'>bold
+    italics</span>.</p>
+	<p>IMPORTANT: In the ElectricFlow UI, go to the Home page, open the Main Menu, and click <b>Admin</b> > <b>Plugins</b> to open the Plugin Manager.</p>
+    <div id="CreateConfiguration">
+      <a name='CreateConfiguration' id="CreateConfiguration"></a>
+
+      <h3>Plugin Configuration</h3>
+      <!-- If the plugin has separate configurations then include this section,
+    otherwise omit this whole section. We don't need to have a configuration
+    section that just says "There is no configuration for this plugin."
+    -->
+
+      <p>Plugin configurations are sets of parameters that apply
+      across some or all of the plugin's procedures. They reduce repetition of common values, create
+      predefined sets of parameters for end users, and securely
+      store credentials where needed. Each configuration is given a
+      unique name that is entered in designated parameters on
+      procedures that use them.<br />
+      <br />
+      Plugin configurations are created by going to the ElectricFlow "Administration" tab, then to the "Defect Tracking"
+      subtab.</p>
+      <!-- For all parameters, the parameter name should be *exactly* the same as it appears in the
+    Parameter Panel, and the first sentence(s) of the description should be
+    the same as the tooltip (if there is one). After that, the parameter
+    description can go into greater detail about the parameter including
+    valid value ranges and examples.
+    -->
+
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+
+            <th>Description</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td class='required'>Configuration Name</td>
+
+            <td>Provide a unique name for the configuration. Keep in mind that you might need to create additional
+            configurations over time. (Required)</td>
+          </tr>
+
+          <tr>
+            <td>Description</td>
+
+            <td>Provide a text description. ElectricFlow does not use this
+            information.</td>
+          </tr>
+
+          <tr>
+            <td class='required'>User Name</td>
+
+            <td>Provide the user name to log in to the
+            Bugzilla server. (Required)</td>
+          </tr>
+
+          <tr>
+            <td class='required'>Password and Retype Password</td>
+
+            <td>Provide the password to log in to the
+            Bugzilla server. (Required)</td>
+          </tr>
+
+          <tr>
+            <td class='required'>URL</td>
+
+            <td>Provide the URL to connect to a Bugzilla server. For
+            example: http://10.10.10.10:8080 or
+            http://yourBugzillaserver. (Required)</td>
+          </tr>
+
+          <tr>
+            <td class='required'>Product</td>
+
+            <td>A unique product for this
+            configuration. (Required)</td>
+          </tr>
+
+          <tr>
+            <td>Product Version</td>
+
+            <td>Version of the product to use for this
+            configuration. The default value is 'unspecified'.</td>
+          </tr>
+
+          <tr>
+            <td class='required'>Component</td>
+
+            <td>Indicate the component to use. (Required)</td>
+          </tr>
+
+          <tr>
+            <td class='required'>Priority</td>
+
+            <td>Priority for new bugs for this configuration.
+            The default value is 'P4'. (Required)</td>
+          </tr>
+
+          <tr>
+            <td>Severity</td>
+
+            <td>Severity for new bugs for this configuration.
+            The default value is 'normal'.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="LinkDefects"><a name='LinkDefects' id=
+    "LinkDefects"></a>
+
+    <h3>Link Defects</h3>
+
+    <p>This function creates a link to a summary report for that
+    bug in the job details. The Link Defects command does not write to the defect
+    tracking system, and running Link Defects does not add any
+    additional information to the job other than the link in the
+    job details.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class='required'>Configuration Name</td>
+
+          <td>Provide the name of your Bugzilla defect tracking
+          configuration, or leave it blank to use the "default"
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Property To Parse</td>
+
+          <td>Provide the property or property sheet used to search
+          for defect IDs. If this field is blank, the default
+          property "/myJob/ecscm_changeLogs" is used.</td>
+        </tr>
+      </tbody>
+    </table><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-02.png" alt=
+    "" /></div>
+
+    <div id="UpdateDefects"><a name='UpdateDefects' id=
+    "UpdateDefects"></a>
+
+    <h3>Update Defects</h3>
+
+    <p>This enables defects associated with a job to be
+    automatically updated in the Bugzilla system. Defects are
+    associated with a job if they are in a comma-separated list in
+    a job property or parameter called "/myJob/defectsToUpdate".
+    Updating a defect in the Bugzilla system refers to changing its
+    state to the state specified in "/myJob/defectsToUpdate".</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class='required'>Configuration Name</td>
+
+          <td>Provide the name of your Bugzilla defect tracking
+          configuration, or leave it blank to use the "default"
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class='required'>Property Path</td>
+
+          <td>Provide the path to the property, if the property
+          containing the list of defects to update is somewhere
+          other than "/myJob/defectsToUpdate". (Required)</td>
+        </tr>
+      </tbody>
+    </table><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-03.png" alt=
+    "" /></div>
+
+    <div id="CreateDefects"><a name='CreateDefects' id=
+    "CreateDefects"></a>
+
+    <h3>Create Defects</h3>
+
+    <p>This enables defect creation based on a test failure in an
+    ElectricFlow job. Defects can be created automatically or
+    manually. The Create Defects procedure reads previously-stored
+    properties to create Bugzilla defects with proper values. The
+    best way to store the properties is to add a postp matcher to
+    the step that might fail. For an example postp matcher, click
+    <a href=
+    "../../plugins/EC-DefectTracking-Bugzilla/PostP.txt">here</a>.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class='required'>Configuration Name</td>
+
+          <td>Provide the name of your Bugzilla defect-tracking
+          configuration, or leave it blank to use the "default"
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Creation Mode</td>
+
+          <td>Select Automatic if the defects should be created
+          during job execution without user input. Select Manual to
+          require a user to manually submit a defect from a Defect
+          Report page linked to a Job Details page.</td>
+        </tr>
+
+        <tr>
+          <td class='required'>Bugzilla Project Name</td>
+
+          <td>The name of the project where you want to create the
+          defects. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-04.png" alt=
+    "" /></div>
+	<h1 id="example">Examples and Use Cases</h1>
+    <!-- This section is for examples and use cases, including screenshots of the new Parameter Panel with example values filled in.
+    Unfortunately, I can't tell you what exactly to put here, but it's OK to put what seems like too much! Include both parameter
+    values and output where appropriate. Use a separate 'h2' header for each example. Under the h2 header try to stay with the style
+    outline used above where possible.
+    -->
+
+    <h2>New @PLUGIN_KEY@ Configuration</h2><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-01.png" alt="" />
+
+    <h2>Job Details and Bugzilla Report Link</h2><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-05.png" alt="" />
+
+    <h2>Bugzilla Report Example</h2><img src=
+    "../../plugins/@PLUGIN_KEY@/images/Bugzilla-06.png" alt="" />
+	<h1 id="rns">Release Notes</h1>
+
+    <!-- Specific descriptions of additional or changed functionality,
+    new parameters, etc. The plugin version header of this section should
+    include the speciic build number if possible. Repeat this section for
+    each version.
+    -->	 <h2>@PLUGIN_KEY@-2.0.7</h2>    <ul>        <li>ElectricCommander was renamed to ElectricFlow.</li>    </ul>	
+    <h2>@PLUGIN_KEY@-2.0.6</h2>
+    <ul>
+        <li>Procedure names were changed in the step picker section.</li>
+    </ul>
+    <h2>@PLUGIN_KEY@-2.0.5</h2>
+
+    <ul>
+      <li>The Help page style was updated.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.4</h2>
+
+    <ul>
+      <li>The Category name was fixed.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.3</h2>
+
+    <ul>
+      <li>The Help page was updated.</li>
+
+      <li>A Help link was added to each procedure.</li>
+
+      <li>The parameter panel XML was updated.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-2.0.2</h2>
+
+    <ul>
+      <li>A new Help page template was applied.</li>
+
+      <li>A detailed use case was added.</li>
+
+      <li>XML parameters panel for all procedures were added.</li>
+    </ul>
+  </div>
+</body>
+</html>

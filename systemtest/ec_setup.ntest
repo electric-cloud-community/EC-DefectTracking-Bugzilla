@@ -1,0 +1,74 @@
+# -*-Perl-*-
+# ec_setup.ntest -
+#
+# Exercise the ec_setup script for the plugin.
+#
+# Copyright (c) 2005-2010 Electric Cloud, Inc.
+# All rights reserved
+
+use strict;
+use warnings;
+
+my $N = $::gCommander;
+$N->login('admin', 'changeme');
+my $pluginKey = 'EC-DefectTracking-Bugzilla';
+my $xpath = $N->getPlugin($pluginKey);
+my $pluginName = $xpath->findvalue('//pluginName')->value;
+
+#-------------------------------------------------------------------------------
+# Test permissions and visibility, which should be set regardless of whether the
+# plugin is promoted or not.
+#-------------------------------------------------------------------------------
+ntest 'install', {}, sub {
+    assertOK($N->promotePlugin($pluginName, {promoted => 0}));
+    my $projPath = "/projects/$pluginName";
+    assertOK($xpath = $N->getProperty("$projPath/ec_visibility"), 'project visibility is set');
+    assertEq('pickListOnly', $xpath->findvalue('//value'), 'pickListOnly visibility for project');
+    my $procsPath = "$projPath/procedures";
+    my $procName = 'CreateConfiguration';
+    assertOK($xpath = $N->getProperty("$procsPath/$procName/ec_visibility"), "$procName visibility is set");
+    assertEq('private', $xpath->findvalue('//value'), "private visibility for $procName");
+    my $adminGroup = 'DefectTrackingAdmins';
+    assertOK($xpath = $N->getAclEntry('group', $adminGroup, {projectName => $pluginName, procedureName => $procName}), "$procName ACL entry exists");
+    assertEq('inherit', $xpath->findvalue('//readPrivilege'), "$procName ACL entry read");
+    assertEq('inherit', $xpath->findvalue('//modifyPrivilege'), "$procName ACL entry modify");
+    assertEq('allow', $xpath->findvalue('//executePrivilege'), "$procName ACL entry execute");
+    assertEq('inherit', $xpath->findvalue('//changePermissionsPrivilege'), "$procName ACL entry changePermissions");
+    $procName = 'LinkDefects';
+    $xpath = $N->getProperty("$procsPath/$procName/ec_visibility");
+    assertEq('NoSuchProperty', $xpath->findvalue('//code'), "default visibility for $procName");
+    my $everyoneGroup = 'Everyone';
+    assertOK($xpath = $N->getAclEntry('group', $everyoneGroup, {projectName => $pluginName, procedureName => $procName}), "$procName ACL entry exists");
+    assertEq('inherit', $xpath->findvalue('//readPrivilege'), "$procName ACL entry read");
+    assertEq('inherit', $xpath->findvalue('//modifyPrivilege'), "$procName ACL entry modify");
+    assertEq('allow', $xpath->findvalue('//executePrivilege'), "$procName ACL entry execute");
+    assertEq('inherit', $xpath->findvalue('//changePermissionsPrivilege'), "$procName ACL entry changePermissions");
+};
+
+#-------------------------------------------------------------------------------
+# Test promote & demote behavior.
+#-------------------------------------------------------------------------------
+ntest 'promote', {}, sub {
+    assertOK($N->promotePlugin($pluginName, {promoted => 0}));
+    assertOK($xpath = $N->getProperty("/projects/$pluginName/ec_setup", {expand => 0}), 'ec_setup property exists');
+    assertNe('', $xpath->findvalue('//value')->value,  'ec_setup script not empty');
+    assertOK($N->promotePlugin($pluginName));
+    my $types = '/plugins/EC-DefectTracking/project/defectTracking_types';
+    my $typeName = 'Bugzilla';
+    assertOK($xpath = $N->getProperty("$types/$pluginKey"),  'type property exists');
+    assertEq($typeName, $xpath->findvalue('//value'), "$typeName type");
+    my $projPrincipal = "project: $pluginName";
+    my $baseProj = '$[/plugins/EC-DefectTracking/project]';
+    assertOK($xpath = $N->getAclEntry('user', $projPrincipal, {projectName => $baseProj}), 'EC-DefectTracking ACL entry exists');
+    assertEq('inherit', $xpath->findvalue('//readPrivilege'),  'EC-DefectTracking ACL entry read');
+    assertEq('inherit', $xpath->findvalue('//modifyPrivilege'),  'EC-DefectTracking ACL entry modify');
+    assertEq('allow', $xpath->findvalue('//executePrivilege'),  'EC-DefectTracking ACL entry execute');
+    assertEq('inherit', $xpath->findvalue('//changePermissionsPrivilege'),  'EC-DefectTracking ACL entry changePermissions');
+    assertOK($N->promotePlugin($pluginName, {promoted => 0}));
+    $xpath = $N->getProperty("$types/$pluginKey");
+    assertEq('NoSuchProperty', $xpath->findvalue('//code'),  'type property gone');
+    $xpath = $N->getAclEntry('user', $projPrincipal,  {projectName => $baseProj});
+    assertEq('NoSuchAclEntry', $xpath->findvalue('//code'),  'EC-DefectTracking ACL entry gone');
+};
+$N->promotePlugin($pluginName);
+1;

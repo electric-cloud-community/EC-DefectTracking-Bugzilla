@@ -1,0 +1,67 @@
+<editor>
+    <formElement>
+        <type>entry</type>
+        <label>Configuration Name:</label>
+        <property>config</property>
+        <required>1</required>
+	<documentation>Provide a unique name for the configuration, keeping in mind that you may need to create additional configurations over time.</documentation>
+    </formElement>
+    <formElement>
+        <type>textarea</type>
+        <label>Description:</label>
+        <property>desc</property>
+        <documentation>You can supply a text description for your reference only. Commander does not use this information.</documentation>
+        <value>Bugzilla configuration</value>
+    </formElement>
+    <formElement>
+        <type>credential</type>
+        <label>Login As:</label>
+        <property>credential</property>
+        <required>1</required>        
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>URL:</label>
+        <property>url</property>
+        <required>1</required>
+        <documentation>The URL to use to connect to a Bugzilla server.  For example: http://10.10.10.10:8080 or http://yourBugzillaserver</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Product:</label>
+        <property>product</property>
+        <required>1</required>
+        <documentation>A unique product for this configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Product Version:</label>
+        <property>version</property>
+        <required>0</required>
+        <documentation>Version of the product to use for this configuration. Default value is 'unspecified'.</documentation>
+        <value>unspecified</value>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Component:</label>
+        <property>component</property>
+        <required>1</required>
+        <documentation>Indicate the component to use.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Priority:</label>
+        <property>priority</property>
+        <required>0</required>
+        <documentation>Priority for new bugs for this configuration. Default value is 'P4'.</documentation>
+        <value>P4</value>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Severity:</label>
+        <property>severity</property>
+        <required>0</required>
+        <documentation>Severity for new bugs for this configuration. Default value is 'normal'.</documentation>
+        <value>normal</value>
+    </formElement>
+</editor>
